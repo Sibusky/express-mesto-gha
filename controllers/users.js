@@ -1,71 +1,60 @@
 const User = require('../models/users');
 
-const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
-// const InternalServerError = require('../errors/InternalServerError');
+const BAD_REQUIEST_ERROR = 400;
+const NOT_FOUND_ERROR = 404;
+const INTERNAL_SERVER_ERROR = 500;
 
 // Возвращаю всех пользователей
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => next(err));
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 // Возвращаю пользователя по ID
-module.exports.getUserById = (req, res, next) => {
+module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Пользователь не найден');
-      } else {
-        res.status(200).send(user);
-      }
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotFoundError('Пользователь по указанному _id не найден'));
-      } else {
-        next(err);
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
 // Создаю пользователя
-module.exports.createUser = (req, res, next) => {
+module.exports.createUser = (req, res) => {
   User.create(req.body)
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      } else {
-        next(err);
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при создании пользователя' });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
 // Обновляю пофиль
-module.exports.updateProfile = (req, res, next) => {
+module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(req.user._id, {
     name: req.body.name,
     about: req.body.about,
   }, {
     new: true, // обработчик then получает на вход обновлённую запись
-    runValidators: true,
+    runValidators: true, // запуск валидации
   })
     .then((user) => {
-      console.log(user);
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
-      } else {
-        res.status(201).send(user);
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
       }
+      return res.status(201).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-      } else {
-        next(err);
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -75,7 +64,18 @@ module.exports.updateAvatar = (req, res) => {
     avatar: req.body.avatar,
   }, {
     new: true, // обработчик then получает на вход обновлённую запись
+    runValidators: true, // запуск валидации
   })
-    .then((user) => res.status(201).send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
+      }
+      return res.status(201).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+    });
 };
