@@ -38,7 +38,12 @@ module.exports.deleteCardById = (req, res) => {
       }
       return res.status(200).send(card);
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные карточки' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+    });
 };
 
 // Ставлю лайк карточке
@@ -48,10 +53,15 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // Добавляю _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка с указанным _id не найдена' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Переданы некорректные данные карточки' });
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные карточки' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
@@ -64,10 +74,15 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // Убираю _id из массива
     { new: true },
   )
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Карточка с указанным _id не найдена' });
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Переданы некорректные данные карточки' });
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные карточки' });
       }
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });

@@ -53,7 +53,7 @@ module.exports.updateProfile = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -75,7 +75,7 @@ module.exports.updateAvatar = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
