@@ -1,38 +1,72 @@
 const User = require('../models/users');
 
-// Возвращаю всех пользователей
-module.exports.getUsers = (req, res) => {
-  // const { name, about, avatar } = req.body;
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+// const InternalServerError = require('../errors/InternalServerError');
 
+// Возвращаю всех пользователей
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => next(err));
 };
 
 // Возвращаю пользователя по ID
-module.exports.getUserById = (req, res) => {
-  User.findOne({ _id: req.params.userId })
-    .then((user) => res.status(200).send(user))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+module.exports.getUserById = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      } else {
+        res.status(200).send(user);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new NotFoundError('Пользователь по указанному _id не найден'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 // Создаю пользователя
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   User.create(req.body)
     .then((user) => res.status(201).send(user))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 // Обновляю пофиль
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, {
     name: req.body.name,
     about: req.body.about,
   }, {
     new: true, // обработчик then получает на вход обновлённую запись
+    runValidators: true,
   })
-    .then((user) => res.status(201).send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then((user) => {
+      console.log(user);
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      } else {
+        res.status(201).send(user);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 // Обновляю аватар
