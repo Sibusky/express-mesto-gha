@@ -1,21 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-// const path = require('path'); // Импортирую path для раздачи статических файлов
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
 const app = express();
 const PORT = 3000;
 
-// Указываю папку для раздачи статических файлов фронтэнда
-// app.use(express.static(path.resolve(__dirname, 'build')));
-
 // Подключаю БД
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 // Превращаю тело запроса в удобный формат JSON
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Middleware для временной авторизации
 app.use((req, res, next) => {
