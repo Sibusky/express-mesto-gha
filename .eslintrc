@@ -1,20 +1,6 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true
-    },
-    "extends": [
-        "airbnb-base"
-    ],
-    "parserOptions": {
-        "ecmaVersion": "latest"
-    },
-    "rules": {
-      "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-      "no-console": "off",
-      "linebreak-style": 0 //Ничего не понял со стилями окончания строк LF и CRLF. Без этого ключа линтер ругается на один файл
-      // С этим ключом и значением unix ругается на другой файл
-      // С этим ключом и значением windows меньше всего ругается. Но всё равно ошибки какие-то странные.
-    }
+  "extends": "airbnb-base",
+  "rules": {
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+  }
 }
