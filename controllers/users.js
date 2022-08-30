@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const User = require('../models/users');
 
 const BAD_REQUIEST_ERROR = 400;
@@ -29,8 +30,16 @@ module.exports.getUserById = (req, res) => {
 };
 
 // Создаю пользователя
-module.exports.createUser = (req, res) => {
-  User.create(req.body)
+module.exports.createUser = (req, res, next) => {
+  const { email, password, name, about, avatar } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
