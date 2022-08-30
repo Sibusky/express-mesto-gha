@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 const User = require('../models/users');
 
 const BAD_REQUIEST_ERROR = 400;
@@ -48,6 +49,24 @@ module.exports.createUser = (req, res, next) => {
       return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
+
+// Аутентификация пользователя
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id, },
+        'secret-key',
+        { expiresIn: '7d' }
+        );
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: 'Ошибка аутентификации' })
+    })
+}
 
 // Обновляю пофиль
 module.exports.updateProfile = (req, res) => {
