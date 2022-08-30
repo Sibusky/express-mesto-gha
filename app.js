@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const NOT_FOUND_ERROR = 404;
 
@@ -26,11 +27,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //   next();
 // });
 
-// Использую роуты
+// Роуты не требующие авторизации: логин и регистрация
 app.post('/signin', login);
 app.post('/signup', createUser);
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+
+// // Роут авторизации
+// app.use(auth);
+
+// Роуты, требующие авторизации
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardsRouter);
+
+// Роут на ненайденную страницу
 app.use('/*', (req, res) => res.status(NOT_FOUND_ERROR).send({ message: 'Страница не найдена' }));
 
 app.listen(PORT, () => {
