@@ -30,6 +30,24 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
+// Возвращаю текущего пользователя
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователя с таким _id не существует' });
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+    });
+}
+
+
 // Создаю пользователя
 module.exports.createUser = (req, res, next) => {
   const { email, password, name, about, avatar } = req.body;
@@ -60,11 +78,11 @@ module.exports.login = (req, res, next) => {
         { _id: user._id, },
         'secret-key',
         { expiresIn: '7d' }
-        );
+      );
       res.send({ token });
     })
     .catch((err) => {
-      res.status(401).send({ message: 'Ошибка аутентификации' })
+      res.status(401).send({ message: 'Ошибка аутентификации' });
     })
 }
 

@@ -32,7 +32,7 @@ app.post('/signin', login);
 app.post('/signup', createUser);
 
 // // Роут авторизации
-// app.use(auth);
+app.use(auth);
 
 // Роуты, требующие авторизации
 app.use('/users', auth, usersRouter);
