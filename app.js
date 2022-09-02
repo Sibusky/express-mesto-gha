@@ -33,7 +33,7 @@ app.use('/cards', auth, cardsRouter);
 app.use('/*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 // Обработчик ошибок
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   // если у ошибки нет статуса, выставляю 500
   const { statusCode = 500, message } = err;
 
