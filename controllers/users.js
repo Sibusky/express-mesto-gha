@@ -6,27 +6,38 @@ const BAD_REQUIEST_ERROR = 400;
 const NOT_FOUND_ERROR = 404;
 const INTERNAL_SERVER_ERROR = 500;
 
+const BadRequestError = require('../errors/bad-request-err');
+const ConflictError = require('../errors/conflict-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const InternalServerError = require('../errors/internal-server-error');
+const NotFoundError = require('../errors/not-found-err');
+
+
 // Возвращаю всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
 // Возвращаю пользователя по ID
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователя с таким _id не существует' });
+        throw new NotFoundError('Пользователя с таким _id не существует');
+        // return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователя с таким _id не существует' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
+        next(new BadRequestError('Пользователь по указанному _id не найден'));
+        // return res.status(BAD_REQUIEST_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        next(err);
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+      // return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -35,15 +46,19 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователя с таким _id не существует' });
+        throw new NotFoundError('Пользователя с таким _id не существует');
+        // return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователя с таким _id не существует' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
+        next(new BadRequestError('Пользователь по указанному _id не найден'));
+        // return res.status(BAD_REQUIEST_ERROR).send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        next(err);
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+      // return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 }
 
@@ -62,9 +77,14 @@ module.exports.createUser = (req, res, next) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        // return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      } else if (err.code === 11000) {
+        next(new ConflictError('Этот адрес почты уже зарегистрирован'));
+      } else {
+        next(err);
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+      // return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -81,13 +101,11 @@ module.exports.login = (req, res, next) => {
       );
       res.send({ token });
     })
-    .catch((err) => {
-      res.status(401).send({ message: 'Ошибка аутентификации' });
-    })
+    .catch(next);
 }
 
 // Обновляю пофиль
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, {
     name: req.body.name,
     about: req.body.about,
@@ -97,20 +115,22 @@ module.exports.updateProfile = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
+        throw new NotFoundError('Пользователь с указанным _id не найден');
+        // return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        // return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else
+      next(err);
     });
 };
 
 // Обновляю аватар
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, {
     avatar: req.body.avatar,
   }, {
@@ -119,14 +139,15 @@ module.exports.updateAvatar = (req, res) => {
   })
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь с указанным _id не найден' });
+        throw new NotFoundError('Пользователь с указанным _id не найден');
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Что-то пошло не так' });
+        next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
+        // return res.status(BAD_REQUIEST_ERROR).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+      } else
+      next(err);
     });
 };

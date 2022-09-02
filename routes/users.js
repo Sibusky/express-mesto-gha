@@ -6,11 +6,11 @@ const {
 // Возвращаю всех пользователей
 router.get('/', getUsers);
 
-// Возвращаю пользователя по ID
-router.get('/:userId', getUserById);
-
 // Получаю информацию о текущем пользователе
 router.get('/me', getCurrentUser);
+
+// Возвращаю пользователя по ID
+router.get('/:userId', getUserById);
 
 // // Создаю пользователя
 // router.post('/', createUser);
