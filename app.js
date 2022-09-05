@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { celebrate, Joi, errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
-const { celebrate, Joi, errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const { urldRegEx } = require('./utils/constants');
 
