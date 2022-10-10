@@ -3,7 +3,7 @@
 
 # Mesto. Back-end
 
-## Project work after twelve sprints in the course “Web-developer” from Yandex.Practicum
+## Project work after fourteen sprints in the course “Web-developer” from Yandex.Practicum
 
 The present project deals with building the server up for previous work _Mesto. React-Auth_.   
 [Previous project code link](https://github.com/Sibusky/react-mesto-auth).  
