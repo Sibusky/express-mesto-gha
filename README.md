@@ -1,32 +1,34 @@
 [![Tests](https://github.com/Sibusky/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/Sibusky/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/Sibusky/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/Sibusky/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-# Проект Mesto фронтенд + бэкенд
 
 
+# Mesto. Back-end
 
-## Настройка бейджей статуса тестов
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `${имя_пользователя}` и `${имя_репозитория}` соответствующие значения.
+## Project work after twelve sprints in the course “Web-developer” from Yandex.Practicum
 
-```
-[![Tests for sprint 13](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-13-sprint.yml) 
+The present project deals with building the server up for previous work _Mesto. React-Auth_.   
+[Previous project code link](https://github.com/Sibusky/react-mesto-auth).  
+[Previous project GitHub Pages link](https://sibusky.github.io/react-mesto-auth/index.html).   
 
-[![Tests for sprint 14](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/${имя_пользователя}/${имя репозитория}/actions/workflows/tests-14-sprint.yml)
-```
+### Server details:
+- **JavaScript**, **Node.js**,
+- BD **Mongo**,
+- centralized error handling,
+- user registration and authorization,
+- server requests validation,
+- input data validation.
 
+# Место. Бэкенд
 
-## Директории
+## Проектная работа по итогам четырнадцати спринтов в Яндекс.Практикуме в курсе "Веб-разработчик".
 
-`/routes` — папка с файлами роутера  
-`/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
+В данном проекте была проведена работа по созданию сервера для предыдущего проекта _Место. React-Auth_.   
+[Ссылка на код предыдущего проекта](https://github.com/Sibusky/react-mesto-auth).  
+[Ссылка на GitHub Pages предыдущего проекта](https://sibusky.github.io/react-mesto-auth/index.html).  
 
-## Запуск проекта
-
-`npm run start` — запускает сервер   
-`npm run dev` — запускает сервер с hot-reload
-
-## Ссылка на репозиторий
-
-https://github.com/Sibusky/express-mesto-gha
+### Особенности сервера
+- написан на **JavaScript**, **Node.js**,
+- использована база данных **Mongo**,
+- централизованная обработка ошибок,
+- реализована регистрация и авторизация пользователя,
+- валидация запросов приходящих на сервер,
+- валидация введённых пользователем данных.
